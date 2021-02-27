@@ -80,7 +80,7 @@ const Config = function(name) {
 }
 
 let bonsai;
-
+let bonsais = []
 
 //SETUP
 
@@ -118,13 +118,14 @@ function compute() {
   noiseSeed(++conf.seed);
   randomSeed(++conf.seed);
   
-  bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height)), conf.baseEnergy);
+  bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height-20)), conf.baseEnergy);
   MIN_TO_BRANCH = conf.baseEnergy / 8;
   bonsai.init();
 }
 
 
 function draw() {
+  
   
   if (!isInit){
     background(d_bg);
@@ -139,6 +140,8 @@ function draw() {
   
   textAlign(LEFT);
   background(253);
+  
+  
 
   //let offset = 70;
   let leading = 130;
@@ -146,8 +149,11 @@ function draw() {
   let tSize = 100;
   textLeading(leading);
   
+
   fill(0);
-  
+
+  drawBonzai();
+
   for (let i = 0; i < palabra_num; i++) {
     let palabra_l = palabras[i].split(" ");
     let p = palabra_l[0];
@@ -185,14 +191,14 @@ function draw() {
     y = y - 0.6;
     if (y < -(leading*palabra_num)) {
       
-      //Arbol
-      drawBonzai();
-
       y = height;
-      
+
       reset();
+
+      console.log("Intentando otro ")
     }
   }
+  
 }
 
 //Arbol
@@ -348,6 +354,9 @@ class Branch {
 //EXTRAS
 
 function reset() {
+  bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height-20)), conf.baseEnergy)
+  compute();
+  drawBonzai();
   for (let i = 0; i < palabra_num; i++) {
     palabras[i] = getpalabra();
   }
