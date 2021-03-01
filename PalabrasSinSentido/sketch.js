@@ -1,6 +1,7 @@
 //https://editor.p5js.org/sladix/sketches/7JU1YNWdv
 
 //Canvas
+var trees = [];
 var canvas;
 var isInit = false;
 var d_bg = 225;
@@ -24,6 +25,8 @@ if (!Array.prototype.last) {
     return this[this.length - 1];
   };
 };
+
+
 
 function preload() {
   prefijos = loadStrings("data/prefijos.txt");
@@ -80,7 +83,6 @@ const Config = function(name) {
 }
 
 let bonsai;
-let bonsais = []
 
 //SETUP
 
@@ -96,48 +98,42 @@ function setup() {
   textAlign(CENTER);
   palabra_num = 3;
   let palabras = [palabra_num];
+  
+
+  noStroke();
+  ellipseMode(CENTER);
+  if(displayDensity() >= 2 && width < 600)
+     textSize(36);
+  else textSize(76);
+  textAlign(CENTER);
+  textFont("Palatino");
+  pixelDensity(displayDensity());
+
   reset();
-
-  //Arboles
-  strokeWeight(weight); // do 0.1 for laser
-  stroke(0); // red is good for laser
-  noFill(); // better not to have a fill for laser
-  rectMode(CENTER);
-  /*Compute*/
-  compute();
   
-}
-
-
-//ARBOLES
-function saveShiet() {
-  drawThing();
-}
-
-function compute() {
-  noiseSeed(++conf.seed);
-  randomSeed(++conf.seed);
-  
-  bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height-20)), conf.baseEnergy);
-  MIN_TO_BRANCH = conf.baseEnergy / 8;
-  bonsai.init();
 }
 
 
 function draw() {
-  
-  
   if (!isInit){
     background(d_bg);
     fill(d_min);
     text("El origen de las palabras", width/2, height/2 - textSize());
-    text("click at will.", width/2, height/2 + 0.75 * textSize());
+    text("Click para iniciar ➜", width/2, height/2 + 0.75 * textSize());
     
     noLoop();
     return;
   }
   
-  
+  //drawBonzai();
+  var i;
+  for (i = 0; i < trees.length; i++) {
+    trees[i].render();
+    trees[i].update();
+    if(trees[i].isDead)
+      trees.splice(i--, 1);
+  }
+  /*
   textAlign(LEFT);
   background(253);
   
@@ -149,10 +145,7 @@ function draw() {
   let tSize = 100;
   textLeading(leading);
   
-
   fill(0);
-
-  drawBonzai();
 
   for (let i = 0; i < palabra_num; i++) {
     let palabra_l = palabras[i].split(" ");
@@ -198,10 +191,72 @@ function draw() {
       console.log("Intentando otro ")
     }
   }
+  */
   
 }
 
+//EXTRAS
+
+function reset() {
+  //bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height-20)), conf.baseEnergy)
+  //compute();
+  //drawBonzai();
+  for (let i = 0; i < palabra_num; i++) {
+    palabras[i] = getpalabra();
+  }
+}
+
+function getpalabra() {
+  let pre = prefijos[floor(random(prefijos.length))];
+  let roo = raices[floor(random(raices.length))];
+  let suf = sufijos[floor(random(sufijos.length))];
+  return pre + " " + roo + " " + suf;
+}
+
+function mousePressed() {
+  reset();
+  if(!isInit){
+    background(d_bg);
+    isInit = true;
+    loop();
+  }
+  var l = createVector(mouseX, mouseY);
+  var v = createVector(0, -1);
+  var r = (4 + 10 * mouseY / height);
+  if(displayDensity() >= 2 && width < 600)
+    r /= displayDensity();
+  var root = new Tree(l, v, r, r, 1, 0, d_max - (d_max - d_min) * mouseY / height, 0);
+  trees.push(root);
+}
+
+function keyPressed() {
+  if (key == ' ') {
+    saveFrame("palabra_sin_sentido.png");
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  trees = [];
+  isInit = false;
+}
+
+
+
 //Arbol
+function saveShiet() {
+  drawThing();
+}
+
+function compute() {
+  noiseSeed(++conf.seed);
+  randomSeed(++conf.seed);
+  
+  bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height-20)), conf.baseEnergy);
+  MIN_TO_BRANCH = conf.baseEnergy / 8;
+  bonsai.init();
+}
+
 function drawBonzai() {
   
   if(bonsai.growing){
@@ -348,45 +403,4 @@ class Branch {
       line(l.start.x, l.start.y, l.end.x, l.end.y);
     });
   }
-}
-
-
-//EXTRAS
-
-function reset() {
-  bonsai = new Bonsai(createVector(getRandomArbitrary(0,width), getRandomArbitrary(-10,height-20)), conf.baseEnergy)
-  compute();
-  drawBonzai();
-  for (let i = 0; i < palabra_num; i++) {
-    palabras[i] = getpalabra();
-  }
-}
-
-function getpalabra() {
-  let pre = prefijos[floor(random(prefijos.length))];
-  let roo = raices[floor(random(raices.length))];
-  let suf = sufijos[floor(random(sufijos.length))];
-  return pre + " " + roo + " " + suf;
-}
-
-function mousePressed() {
-  reset();
-  if(!isInit){
-    background(d_bg);
-    isInit = true;
-    loop();
-  }
-  
-}
-
-function keyPressed() {
-  if (key == ' ') {
-    saveFrame("palabra_sin_sentido.png");
-  }
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-  trees = [];
-  isInit = false;
 }
