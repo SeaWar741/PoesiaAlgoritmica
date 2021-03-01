@@ -52,11 +52,15 @@ function setup() {
   textFont("Palatino");
   pixelDensity(displayDensity());
 
+  y = windowHeight;
+
   pg = createGraphics(width/2, windowHeight);
 
-  myFont = textFont('data/CenturySchoolbook-60.vlw', 80); // CenturySchoolbook-60.vlw"
-  myFont_bold = textFont('Georgia', 80); // CenturySchoolbook-60.vlw"
+  pg.background("#8C9EA3")
 
+  myFont = textFont('data/CenturySchoolbook-60.vlw', 80); // CenturySchoolbook-60.vlw"
+  myFont_bold = textFont('Palatino', 80); // CenturySchoolbook-60.vlw"
+  
   soundFormats('mp3', 'ogg');
   mySound = loadSound('Arrival');
 
@@ -84,18 +88,18 @@ function draw() {
     if(trees[j].isDead)
       trees.splice(j--, 1);
   }
-  
+  pg.background("#8C9EA3")
   pg.fill(0)
 
   pg.textAlign(LEFT);
   
   let offset = 70;
   let leading = 130;
-  let y = (height/2)-100;
-  let tSize = 100;
+  //let y = (height/2)-100;
+  let tSize = 70;
   pg.textLeading(leading);
 
-  pg.fill(0);
+  pg.fill("#141518");
 
   pg.textSize(48)
 
@@ -106,30 +110,42 @@ function draw() {
     let s = palabra_l[2];
     let x = offset;
 
-    if (i % 2 == 1) {
+    if (i == 0) {
       pg.textFont(myFont_bold, tSize);
-      pg.text(p + "·", x, y);
-
-      x += textWidth(p + "·");
-      pg.textFont(myFont, tSize);
+      pg.text(p+"·", x, y);
+      
+      x += pg.textWidth(p+"·");
+      pg.textFont("Palatino", tSize);
       pg.text(r, x, y);
-
-      x += textWidth(r);
+      
+      x += pg.textWidth(r);
       pg.textFont(myFont_bold, tSize);
       pg.text("·" + s, x, y);
     } else {
       pg.textFont(myFont, tSize);
-      pg.text(p + "·", x, y);
-
-      x += textWidth(p + "·");
+      pg.text(p+"·", x, y+(leading*i));
+      
+      x += pg.textWidth(p+"·");
       pg.textFont(myFont_bold, tSize);
-      pg.text(r, x, y);
-
-      x += textWidth(r);
+      pg.text(r, x, y+(leading*i));
+      
+      x += pg.textWidth(r);
       pg.textFont(myFont, tSize);
-      pg.text("·" + s, x, y);
+      pg.text("·" + s, x, y+(leading*i));
     }
-    y += leading;
+
+    y = y - 0.4;
+
+    //console.log(y)
+
+    if (y < -(leading*palabra_num)) {
+      
+      y = height;
+
+      reset();
+
+      console.log("Intentando otro ")
+    }
   }
   
   
@@ -153,7 +169,7 @@ function reset() {
     return;
   }
   generateTree()
-  pg.background(250)
+  pg.background("#8C9EA3")
 }
 
 function mousePressed() {
